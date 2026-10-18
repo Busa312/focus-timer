@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Focus Fox</title>
+    <meta name="description" content="A little fox that grows while you focus." />
+    <meta name="theme-color" content="#fdf6ee" />
+    <script>
+      // Apply the saved light/dark choice before first paint (mirrors src/lib/theme.ts).
+      (function () {
+        var pref = 'system';
+        try {
+          pref = localStorage.getItem('focus-creature:theme') || 'system';
+        } catch (e) {}
+        var dark =
+          pref === 'dark' ||
+          (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', dark ? '#1f1a24' : '#fdf6ee');
+      })();
+    </script>
+    <link rel="icon" href="/icons/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180x180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Focus Fox" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

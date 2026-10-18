@@ -1,0 +1,402 @@
+/* CSS fallback animations for the SVG fox. Lottie files replace these per state. */
+
+.fox .fox-motion,
+.fox .fox-head,
+.fox .fox-wag,
+.fox .fox-blink,
+.fox .fox-ball,
+.fox .fox-book {
+  transform-box: fill-box;
+}
+
+.fox .fox-motion {
+  transform-origin: 50% 100%;
+}
+
+/* Idle motions by mood */
+.fox-m-bounce {
+  animation: fox-bounce 0.9s ease-in-out infinite;
+}
+.fox-m-bob {
+  animation: fox-bob 2.4s ease-in-out infinite;
+}
+.fox-m-slowbob {
+  animation: fox-bob 4.2s ease-in-out infinite;
+}
+.fox-m-slump {
+  animation: fox-slump 5s ease-in-out infinite;
+}
+.fox-m-wobble {
+  animation: fox-wobble 2.6s ease-in-out infinite;
+}
+
+/* State motions */
+.fox-m-nod .fox-head {
+  transform-origin: 50% 100%;
+  animation: fox-nod 3.2s ease-in-out infinite;
+}
+.fox-m-hop {
+  animation: fox-hop 0.8s cubic-bezier(0.3, 0, 0.5, 1) infinite;
+}
+.fox-m-jump {
+  animation: fox-jump 0.7s cubic-bezier(0.3, 0, 0.5, 1) infinite;
+}
+.fox-m-shiver {
+  animation: fox-shiver 0.18s linear infinite;
+}
+.fox-m-sink {
+  animation: fox-sink 0.8s ease-out both;
+}
+.fox-m-sink .fox-head {
+  transform-origin: 50% 100%;
+  animation: fox-head-down 0.8s ease-out both;
+}
+.fox-m-hatch {
+  animation: fox-hatch 0.45s ease-in-out infinite;
+}
+
+.fox .fox-wag {
+  transform-origin: 4% 82%;
+  animation: fox-wag 1.4s ease-in-out infinite;
+}
+
+.fox .fox-blink {
+  transform-origin: 50% 50%;
+  animation: fox-blink 5s infinite;
+}
+
+.fox .fox-twinkle {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: fox-twinkle 1.6s ease-in-out infinite;
+}
+
+.fox .fox-heart {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation: fox-heart 4.8s ease-out infinite;
+}
+
+.fox .fox-rain {
+  opacity: 0;
+  animation: fox-rain 9s ease-in-out infinite;
+}
+.fox .fox-drops {
+  animation: fox-drops 0.7s linear infinite;
+}
+
+.fox .fox-ball {
+  transform-origin: 50% 100%;
+  animation: fox-ball 0.8s cubic-bezier(0.3, 0, 0.5, 1) infinite;
+}
+
+.fox .fox-confetti {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: fox-confetti 1.4s linear infinite;
+}
+
+.fox .fox-sweat {
+  animation: fox-sweat 1.6s ease-in infinite;
+}
+
+@keyframes fox-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  40% {
+    transform: translateY(-7px) scale(0.98, 1.03);
+  }
+  80% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+}
+@keyframes fox-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes fox-slump {
+  0%,
+  100% {
+    transform: translateY(4px) scale(1.02, 0.96);
+  }
+  50% {
+    transform: translateY(5px) scale(1.03, 0.95);
+  }
+}
+@keyframes fox-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-6deg);
+  }
+  40% {
+    transform: rotate(5deg);
+  }
+  55% {
+    transform: rotate(-2deg);
+  }
+  65% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes fox-nod {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(2px);
+  }
+}
+@keyframes fox-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+  45% {
+    transform: translateY(-10px) scale(0.98, 1.03);
+  }
+}
+@keyframes fox-jump {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+  45% {
+    transform: translateY(-18px) scale(0.97, 1.04) rotate(-3deg);
+  }
+}
+@keyframes fox-shiver {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1.2px);
+  }
+  75% {
+    transform: translateX(1.2px);
+  }
+}
+@keyframes fox-sink {
+  to {
+    transform: translateY(5px) scale(1.03, 0.95);
+  }
+}
+@keyframes fox-head-down {
+  to {
+    transform: rotate(4deg) translateY(4px);
+  }
+}
+@keyframes fox-hatch {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-9deg);
+  }
+  75% {
+    transform: rotate(9deg);
+  }
+}
+@keyframes fox-wag {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-12deg);
+  }
+}
+@keyframes fox-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes fox-twinkle {
+  0%,
+  100% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1) rotate(45deg);
+    opacity: 1;
+  }
+}
+@keyframes fox-heart {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.6);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    opacity: 0;
+    transform: translateY(-22px) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fox-rain {
+  0%,
+  45%,
+  100% {
+    opacity: 0;
+  }
+  55%,
+  88% {
+    opacity: 1;
+  }
+}
+@keyframes fox-drops {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+@keyframes fox-ball {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.06, 0.94);
+  }
+  50% {
+    transform: translateY(-34px) scale(1, 1) rotate(180deg);
+  }
+}
+@keyframes fox-confetti {
+  from {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(70px) rotate(300deg);
+    opacity: 0;
+  }
+}
+@keyframes fox-sweat {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+/* Speech bubble */
+.fox-bubble {
+  animation: fox-bubble-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes fox-bubble-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* Evolution moment */
+.evo-flash {
+  animation: evo-flash 900ms ease-out both;
+}
+@keyframes evo-flash {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.evo-rays {
+  animation: evo-spin 14s linear infinite;
+}
+@keyframes evo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Reduced motion: no movement; keep gentle fades so state changes still read. */
+@keyframes fox-fade-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+}
+@keyframes fox-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fox-reduced .fox *,
+.fox-reduced .fox,
+.fox-reduced .evo-rays {
+  animation: none !important;
+}
+.fox-reduced .fox .fox-heart,
+.fox-reduced .fox .fox-rain,
+.fox-reduced .fox .fox-sweat {
+  animation: fox-fade-pulse 6s ease-in-out infinite !important;
+}
+.fox-reduced .fox .fox-confetti {
+  opacity: 1;
+}
+.fox-reduced .fox-bubble {
+  animation: fox-fade-in 300ms ease-out both;
+  transform: translate(-50%, 0);
+}
+.fox-reduced .evo-flash {
+  animation: fox-fade-in 400ms ease-out reverse both;
+}
+.fox-reduced .fox-swap {
+  animation: fox-fade-in 400ms ease-out both;
+}
+
+/* Snapshot (share card): fully static. */
+.fox-still .fox,
+.fox-still .fox * {
+  animation: none !important;
+  transition: none !important;
+}

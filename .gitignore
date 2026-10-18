@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+dev-dist/
+*.tsbuildinfo
+
+# Test output
+coverage/
+test-results/
+playwright-report/
+
+# Environment files (the app needs none today; keep secrets out of git if added later)
+.env
+.env.*
+!.env.example
+*.local
+
+# Hosting CLIs
+.vercel/
+.netlify/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editors and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

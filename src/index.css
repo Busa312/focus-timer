@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+/* dark: styles follow the theme chosen in the app (data-theme on <html>), not just the OS. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --font-sans:
+    ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --color-cream: #fdf6ee;
+  --color-ink: #3b2a24;
+  --color-fox: #f08a4b;
+  --color-peach: #ffd2b8;
+  --color-mint: #b8e6d3;
+  --color-sky: #bcdcf5;
+  --color-lilac: #d9c8f2;
+  --color-butter: #fbe7a1;
+  --color-rose: #f7c1cf;
+  --color-night: #1f1a24;
+  --color-dusk: #2c2533;
+
+  --animate-pop: pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-fade-in: fade-in 300ms ease-out both;
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+[data-theme='dark'] body {
+  background: var(--color-night);
+  color: #f3e9e2;
+}
+
+/* Page gutter, or the notch / home-bar inset when that is larger. */
+.safe-area {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop {
+    animation: fade-in 300ms ease-out both;
+  }
+}
