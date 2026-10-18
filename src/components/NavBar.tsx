@@ -23,7 +23,7 @@ export function NavBar({ screen, onChange }: { screen: Screen; onChange: (s: Scr
   return (
     <nav
       aria-label="Main"
-      className="sticky bottom-0 mt-2 flex justify-around rounded-3xl bg-white/85 p-1.5 shadow-[0_-2px_12px_rgba(59,42,36,0.06)] backdrop-blur dark:bg-dusk/90"
+      className="sticky bottom-[max(0.75rem,env(safe-area-inset-bottom))] mt-2 flex justify-around rounded-3xl bg-white/85 p-1.5 shadow-[0_-2px_12px_rgba(59,42,36,0.06)] backdrop-blur dark:bg-dusk/90"
     >
       {ITEMS.map((item) => {
         const current = item.id === screen || (screen === 'labels' && item.id === 'settings');
