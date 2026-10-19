@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Stepper, Toggle } from '../components/controls';
 import { PresetOptions } from '../components/PresetPicker';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { Button, Card, ConfirmDialog } from '../components/ui';
+import { Button, Card, ConfirmDialog, SectionTitle } from '../components/ui';
 import { FAST_MODE_SETTINGS, SETTINGS_LIMITS } from '../config';
 import { wakeLockSupported } from '../hooks/useWakeLock';
 import { promptInstall, useInstallOption } from '../lib/install';
@@ -45,136 +45,105 @@ export function Settings({
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3 pb-3">
+    <div className="flex flex-1 flex-col gap-4 pb-4">
       <ScreenHeader title="Settings" onBack={onBack} />
 
       <Card>
-        <h2 className="mb-2 text-sm font-bold tracking-wide uppercase opacity-60">Timer</h2>
-        <PresetOptions
-          value={draft.presetId}
-          settings={draft}
-          onChange={(id) => set('presetId', id)}
-        />
-        {draft.presetId === 'custom' && (
-          <div className="mt-2">
-            <Stepper
-              label="Focus"
-              unit="min"
-              value={draft.focusMin}
-              {...SETTINGS_LIMITS.focusMin}
-              step={5}
-              onChange={(v) => set('focusMin', v)}
-            />
-            <Stepper
-              label="Short break"
-              unit="min"
-              value={draft.shortBreakMin}
-              {...SETTINGS_LIMITS.shortBreakMin}
-              onChange={(v) => set('shortBreakMin', v)}
-            />
-            <Stepper
-              label="Long break"
-              unit="min"
-              value={draft.longBreakMin}
-              {...SETTINGS_LIMITS.longBreakMin}
-              onChange={(v) => set('longBreakMin', v)}
-            />
-          </div>
-        )}
-        <Stepper
-          label="Long break after"
-          unit="x"
-          value={draft.sessionsPerLongBreak}
-          {...SETTINGS_LIMITS.sessionsPerLongBreak}
-          onChange={(v) => set('sessionsPerLongBreak', v)}
-        />
-        <Stepper
-          label="Grace period"
-          unit="s"
-          value={draft.graceSeconds}
-          {...SETTINGS_LIMITS.graceSeconds}
-          step={5}
-          onChange={(v) => set('graceSeconds', v)}
-        />
-        <Toggle
-          label="Auto-start breaks"
-          checked={draft.autoStartBreaks}
-          onChange={(v) => set('autoStartBreaks', v)}
-        />
+        <SectionTitle>Timer</SectionTitle>
+        <div className="mt-2">
+          <PresetOptions
+            value={draft.presetId}
+            settings={draft}
+            onChange={(id) => set('presetId', id)}
+          />
+        </div>
+        <div className="mt-3 divide-y divide-ink/[0.06] border-t border-ink/[0.06] dark:divide-white/[0.06] dark:border-white/[0.06]">
+          {draft.presetId === 'custom' && (
+            <>
+              <Stepper
+                label="Focus"
+                unit="minutes"
+                value={draft.focusMin}
+                {...SETTINGS_LIMITS.focusMin}
+                step={5}
+                onChange={(v) => set('focusMin', v)}
+              />
+              <Stepper
+                label="Short break"
+                unit="minutes"
+                value={draft.shortBreakMin}
+                {...SETTINGS_LIMITS.shortBreakMin}
+                onChange={(v) => set('shortBreakMin', v)}
+              />
+              <Stepper
+                label="Long break"
+                unit="minutes"
+                value={draft.longBreakMin}
+                {...SETTINGS_LIMITS.longBreakMin}
+                onChange={(v) => set('longBreakMin', v)}
+              />
+            </>
+          )}
+          <Stepper
+            label="Long break after"
+            unit="focus sessions"
+            value={draft.sessionsPerLongBreak}
+            {...SETTINGS_LIMITS.sessionsPerLongBreak}
+            onChange={(v) => set('sessionsPerLongBreak', v)}
+          />
+          <Stepper
+            label="Grace period"
+            unit="seconds away allowed"
+            value={draft.graceSeconds}
+            {...SETTINGS_LIMITS.graceSeconds}
+            step={5}
+            onChange={(v) => set('graceSeconds', v)}
+          />
+          <Toggle
+            label="Auto-start breaks"
+            hint="Breaks begin right after a session"
+            checked={draft.autoStartBreaks}
+            onChange={(v) => set('autoStartBreaks', v)}
+          />
+        </div>
       </Card>
 
       <Card>
-        <Toggle
-          label="Sound"
-          hint="Soft chime when a session ends"
-          checked={draft.soundOn}
-          onChange={(v) => set('soundOn', v)}
-        />
-        <Toggle
-          label="Keep screen on"
-          hint={wakeLockSupported() ? 'During focus sessions' : 'Not supported in this browser'}
-          checked={draft.keepScreenOn}
-          onChange={(v) => set('keepScreenOn', v)}
-        />
-        {notificationsSupported() && notifyPermission !== 'granted' && (
-          <div className="flex min-h-12 items-center justify-between gap-3">
-            <div>
-              <p className="font-bold">Leave reminders</p>
-              <p className="text-xs opacity-65">
-                {notifyPermission === 'denied'
-                  ? 'Blocked in browser settings'
-                  : 'A nudge if you leave mid-focus (where supported)'}
-              </p>
-            </div>
-            <Button
-              variant="secondary"
-              className="px-4 text-sm"
-              disabled={notifyPermission === 'denied'}
-              onClick={async () => setNotifyPermission(await Notification.requestPermission())}
-            >
-              Allow
-            </Button>
-          </div>
-        )}
-      </Card>
-
-      {install && (
-        <Card>
-          {install === 'prompt' ? (
-            <div className="flex min-h-12 items-center justify-between gap-3">
-              <div>
-                <p className="font-bold">Install app</p>
-                <p className="text-xs opacity-65">Full screen, works offline</p>
+        <SectionTitle>Sound &amp; screen</SectionTitle>
+        <div className="divide-y divide-ink/[0.06] dark:divide-white/[0.06]">
+          <Toggle
+            label="Sound"
+            hint="Soft chime when a session ends"
+            checked={draft.soundOn}
+            onChange={(v) => set('soundOn', v)}
+          />
+          <Toggle
+            label="Keep screen on"
+            hint={wakeLockSupported() ? 'During focus sessions' : 'Not supported in this browser'}
+            checked={draft.keepScreenOn}
+            onChange={(v) => set('keepScreenOn', v)}
+          />
+          {notificationsSupported() && notifyPermission !== 'granted' && (
+            <div className="flex min-h-15 items-center justify-between gap-3 py-2">
+              <div className="min-w-0">
+                <p className="leading-tight font-bold">Leave reminders</p>
+                <p className="text-xs opacity-60">
+                  {notifyPermission === 'denied'
+                    ? 'Blocked in browser settings'
+                    : 'A nudge if you leave mid-focus'}
+                </p>
               </div>
-              <Button className="px-5 text-sm" onClick={() => void promptInstall()}>
-                Install
+              <Button
+                variant="secondary"
+                className="shrink-0 px-4 text-sm"
+                disabled={notifyPermission === 'denied'}
+                onClick={async () => setNotifyPermission(await Notification.requestPermission())}
+              >
+                Allow
               </Button>
             </div>
-          ) : (
-            <div>
-              <p className="font-bold">Install on iPhone or iPad</p>
-              <p className="text-sm opacity-75">
-                Tap <ShareIcon /> Share in Safari, then <strong>Add to Home Screen</strong>.
-              </p>
-            </div>
           )}
-        </Card>
-      )}
-
-      <Card>
-        <button
-          type="button"
-          onClick={onOpenLabels}
-          className="flex min-h-12 w-full items-center justify-between rounded-xl text-left focus-visible:outline-3 focus-visible:outline-sky-500"
-        >
-          <span>
-            <span className="block font-bold">Labels</span>
-            <span className="text-xs opacity-65">Create, rename, recolor and archive</span>
-          </span>
-          <span aria-hidden="true" className="text-xl opacity-50">
-            ›
-          </span>
-        </button>
+        </div>
       </Card>
 
       <div className="flex gap-3">
@@ -188,15 +157,15 @@ export function Settings({
       {notice && !dirty && (
         <p
           role="status"
-          className="text-center text-sm font-bold text-emerald-600 dark:text-emerald-400"
+          className="-mt-1 text-center text-sm font-bold text-emerald-600 dark:text-emerald-400"
         >
           {notice}
         </p>
       )}
 
       <Card>
-        <h2 className="mb-2 text-sm font-bold tracking-wide uppercase opacity-60">Appearance</h2>
-        <div role="radiogroup" aria-label="Theme" className="grid grid-cols-3 gap-2">
+        <SectionTitle>Appearance</SectionTitle>
+        <div role="radiogroup" aria-label="Theme" className="mt-2 grid grid-cols-3 gap-2">
           {THEMES.map(([value, label]) => (
             <button
               key={value}
@@ -220,24 +189,62 @@ export function Settings({
         </div>
       </Card>
 
+      <Card>
+        <SectionTitle>Labels</SectionTitle>
+        <button
+          type="button"
+          onClick={onOpenLabels}
+          className="flex min-h-15 w-full items-center justify-between gap-3 rounded-xl py-2 text-left focus-visible:outline-3 focus-visible:outline-sky-500"
+        >
+          <span className="min-w-0">
+            <span className="block leading-tight font-bold">Manage labels</span>
+            <span className="text-xs opacity-60">Create, rename, recolor and archive</span>
+          </span>
+          <span aria-hidden="true" className="text-2xl leading-none opacity-40">
+            ›
+          </span>
+        </button>
+      </Card>
+
+      {install && (
+        <Card>
+          <SectionTitle>Install</SectionTitle>
+          {install === 'prompt' ? (
+            <div className="flex min-h-15 items-center justify-between gap-3 py-2">
+              <div className="min-w-0">
+                <p className="leading-tight font-bold">Install app</p>
+                <p className="text-xs opacity-60">Full screen, works offline</p>
+              </div>
+              <Button className="shrink-0 px-5 text-sm" onClick={() => void promptInstall()}>
+                Install
+              </Button>
+            </div>
+          ) : (
+            <p className="py-2 text-sm opacity-80">
+              Tap <ShareIcon /> Share in Safari, then <strong>Add to Home Screen</strong>.
+            </p>
+          )}
+        </Card>
+      )}
+
       {import.meta.env.DEV && (
         <Card>
-          <h2 className="mb-2 text-sm font-bold tracking-wide uppercase opacity-60">Dev</h2>
+          <SectionTitle>Dev</SectionTitle>
           <Button
             variant="secondary"
-            className="w-full"
+            className="mt-2 w-full"
             onClick={() => setDraft((d) => ({ ...d, ...FAST_MODE_SETTINGS }))}
           >
-            Fast mode (1 min focus, 10 s breaks)
+            Fast mode: 1 min / 10 s
           </Button>
         </Card>
       )}
 
       <Card>
-        <h2 className="mb-2 text-sm font-bold tracking-wide uppercase opacity-60">Data</h2>
+        <SectionTitle>Data</SectionTitle>
         <Button
           variant="ghost"
-          className="w-full text-rose-600! dark:text-rose-400!"
+          className="mt-1 w-full text-rose-600! dark:text-rose-400!"
           onClick={() => setConfirmReset(true)}
         >
           Reset all data

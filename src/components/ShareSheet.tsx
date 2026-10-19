@@ -11,6 +11,7 @@ import {
   SHARE_FILENAME,
   shareOrDownload,
 } from '../lib/share';
+import { useTheme } from '../lib/theme';
 import { useAppStore } from '../store/useAppStore';
 import { ShareCard } from './ShareCard';
 import { Sheet } from './Sheet';
@@ -31,6 +32,8 @@ export function ShareSheet({ onClose }: { onClose: () => void }) {
     })),
   );
   const [today] = useState(() => toDateKey(Date.now()));
+  // The image matches the theme the app is showing.
+  const theme = useTheme();
   const summary = weekSummary(history, labels, streak, today);
   const cardRef = useRef<HTMLDivElement>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
@@ -55,7 +58,7 @@ export function ShareSheet({ onClose }: { onClose: () => void }) {
       alive = false;
       if (url) URL.revokeObjectURL(url);
     };
-  }, []);
+  }, [theme]);
 
   const shareable = blob
     ? canShareFile(new File([blob], SHARE_FILENAME, { type: 'image/png' }))
@@ -80,6 +83,7 @@ export function ShareSheet({ onClose }: { onClose: () => void }) {
           wardrobe={wardrobe}
           summary={summary}
           today={today}
+          theme={theme}
         />
       </div>
 

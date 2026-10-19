@@ -6,11 +6,12 @@ interface StepperProps {
   min: number;
   max: number;
   step?: number;
+  /** Shown under the label, e.g. "minutes". */
   unit: string;
   onChange: (v: number) => void;
 }
 
-/** − value + control with 44 px targets. */
+/** Label on the left, − value + on the right, 44 px targets. */
 export function Stepper({ label, value, min, max, step = 1, unit, onChange }: StepperProps) {
   const id = useId();
   // What the user is typing; clamped only when they leave the field, so "30"
@@ -24,15 +25,18 @@ export function Stepper({ label, value, min, max, step = 1, unit, onChange }: St
     setText(null);
   };
   const btn =
-    'flex h-11 w-11 items-center justify-center rounded-full bg-cream text-xl font-extrabold focus-visible:outline-3 focus-visible:outline-sky-500 disabled:opacity-40 dark:bg-night';
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream text-xl font-extrabold focus-visible:outline-3 focus-visible:outline-sky-500 disabled:opacity-35 dark:bg-night';
   // Fractional values (dev fast mode) are shown rounded but stay as set until changed.
   const shown = Number.isInteger(value) ? value : Math.round(value * 10) / 10;
   return (
-    <div className="flex min-h-12 items-center justify-between gap-3">
-      <label htmlFor={id} className="font-bold">
-        {label}
-      </label>
-      <div className="flex items-center gap-1.5">
+    <div className="flex min-h-15 items-center justify-between gap-3 py-2">
+      <div className="min-w-0">
+        <label htmlFor={id} className="block leading-tight font-bold">
+          {label}
+        </label>
+        <span className="text-xs opacity-60">{unit}</span>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
         <button
           type="button"
           className={btn}
@@ -58,7 +62,7 @@ export function Stepper({ label, value, min, max, step = 1, unit, onChange }: St
           }}
           onBlur={commit}
           onKeyDown={(e) => e.key === 'Enter' && commit()}
-          className="tabular h-11 w-14 rounded-xl bg-transparent text-center text-lg font-extrabold outline-none focus-visible:ring-3 focus-visible:ring-sky-500 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          className="tabular h-11 w-12 rounded-xl bg-transparent text-center text-lg font-extrabold outline-none focus-visible:ring-3 focus-visible:ring-sky-500 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
@@ -69,7 +73,6 @@ export function Stepper({ label, value, min, max, step = 1, unit, onChange }: St
         >
           +
         </button>
-        <span className="w-8 text-sm opacity-60">{unit}</span>
       </div>
     </div>
   );
@@ -85,12 +88,12 @@ interface ToggleProps {
 export function Toggle({ label, hint, checked, onChange }: ToggleProps) {
   const id = useId();
   return (
-    <div className="flex min-h-12 items-center justify-between gap-3">
-      <div>
-        <label htmlFor={id} className="font-bold">
+    <div className="flex min-h-15 items-center justify-between gap-3 py-2">
+      <div className="min-w-0">
+        <label htmlFor={id} className="block leading-tight font-bold">
           {label}
         </label>
-        {hint && <p className="text-xs opacity-65">{hint}</p>}
+        {hint && <p className="text-xs opacity-60">{hint}</p>}
       </div>
       <button
         id={id}

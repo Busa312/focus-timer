@@ -65,6 +65,7 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
     progress = pendingBreak ? 0 : 1;
   }
   const tone = PHASE_TONE[phase];
+  const longClock = clockMs >= 3_600_000;
   const paused = active?.pausedAt != null;
 
   // Session dots: completed focus sessions in the current cycle.
@@ -107,13 +108,22 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
       <div className="flex flex-col items-center gap-3 pb-2">
         <TimerRing progress={progress} tone={tone.stroke}>
           <span
-            className="tabular text-5xl font-extrabold tracking-tight"
+            // "1:30:00" is two characters wider than "25:00"; shrink it to stay inside the ring.
+            className={`tabular leading-none font-extrabold tracking-tight ${
+              longClock ? 'text-4xl' : 'text-5xl'
+            }`}
             data-testid="clock"
             aria-live="off"
           >
             {formatClock(clockMs)}
           </span>
-          <span className={`mt-1 text-sm font-bold ${tone.text}`} data-testid="phase">
+          {/* Hangs below the centered time so the time itself sits in the middle. */}
+          <span
+            className={`absolute text-sm font-bold ${tone.text} ${
+              longClock ? 'top-[calc(50%+1.5rem)]' : 'top-[calc(50%+1.75rem)]'
+            }`}
+            data-testid="phase"
+          >
             {paused
               ? 'Paused'
               : active

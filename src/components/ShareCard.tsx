@@ -4,6 +4,7 @@ import { addDays } from '../logic/dates';
 import { formatDuration } from '../logic/stats';
 import type { WeekSummary } from '../logic/weeklyStats';
 import { SHARE_HEIGHT, SHARE_WIDTH } from '../lib/share';
+import type { Theme } from '../lib/theme';
 import type { Creature as CreatureT, Wardrobe } from '../types';
 import { Creature } from './Creature/Creature';
 
@@ -12,11 +13,31 @@ const shortDate = (key: string) => {
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
+/** Card colors for each app theme, so the shared image matches what the user sees. */
+const CARD_THEMES: Record<
+  Theme,
+  { background: string; text: string; tile: string; shadow: string }
+> = {
+  light: {
+    background: 'linear-gradient(180deg, #fde6c8 0%, #fdf6ee 55%, #fdf6ee 100%)',
+    text: '#3b2a24',
+    tile: '#ffffff',
+    shadow: '0 6px 0 rgba(59,42,36,0.08)',
+  },
+  dark: {
+    background: 'linear-gradient(180deg, #3a2c45 0%, #1f1a24 55%, #1f1a24 100%)',
+    text: '#f3e9e2',
+    tile: '#2c2533',
+    shadow: '0 6px 0 rgba(0,0,0,0.35)',
+  },
+};
+
 interface Props {
   creature: CreatureT;
   wardrobe: Wardrobe;
   summary: WeekSummary;
   today: string;
+  theme?: Theme;
 }
 
 /**
@@ -24,9 +45,10 @@ interface Props {
  * and turned into a PNG; always uses the SVG fox (colors + accessory) held still.
  */
 export const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
-  { creature, wardrobe, summary, today },
+  { creature, wardrobe, summary, today, theme = 'light' },
   ref,
 ) {
+  const colors = CARD_THEMES[theme];
   const stage = stageForXp(creature.xp);
   const stats: [string, string][] = [
     ['Focus time', formatDuration(summary.focusMinutes)],
@@ -41,9 +63,10 @@ export const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
         width: SHARE_WIDTH,
         height: SHARE_HEIGHT,
         fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif",
-        background: 'linear-gradient(180deg, #fde6c8 0%, #fdf6ee 55%, #fdf6ee 100%)',
-        color: '#3b2a24',
+        background: colors.background,
+        color: colors.text,
       }}
+      data-theme={theme}
       className="relative flex flex-col items-center overflow-hidden"
     >
       <div style={{ marginTop: 84, fontSize: 40, fontWeight: 700, opacity: 0.7 }}>
@@ -74,9 +97,9 @@ export const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
               width: 296,
               padding: '28px 0',
               borderRadius: 40,
-              background: '#ffffff',
+              background: colors.tile,
               textAlign: 'center',
-              boxShadow: '0 6px 0 rgba(59,42,36,0.08)',
+              boxShadow: colors.shadow,
             }}
           >
             <div

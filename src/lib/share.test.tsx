@@ -113,6 +113,21 @@ describe('ShareSheet', () => {
     click.mockRestore();
   });
 
+  it('draws the card in the theme the app is showing', async () => {
+    mockShare(false);
+    useAppStore.getState().updateSettings({ theme: 'dark' });
+    const { unmount } = render(<ShareSheet onClose={() => {}} />);
+    expect(screen.getByTestId('share-card')).toHaveAttribute('data-theme', 'dark');
+    expect(screen.getByTestId('share-card').style.color).toBe('rgb(243, 233, 226)');
+    await screen.findByRole('img', { name: /Weekly summary/ });
+    unmount();
+
+    useAppStore.getState().updateSettings({ theme: 'light' });
+    render(<ShareSheet onClose={() => {}} />);
+    expect(screen.getByTestId('share-card')).toHaveAttribute('data-theme', 'light');
+    await screen.findByRole('img', { name: /Weekly summary/ });
+  });
+
   it('says so if the image cannot be drawn', async () => {
     toBlob.mockRejectedValue(new Error('canvas'));
     mockShare(true);

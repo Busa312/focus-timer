@@ -175,10 +175,14 @@ describe('PresetPicker on Home', () => {
     expect(screen.getByRole('button', { name: /Timer preset: Deep \(locked/ })).toBeDisabled();
   });
 
-  it('shows Marathon as 1:30:00', () => {
+  it('shows Marathon as 1:30:00', async () => {
     useAppStore.getState().updateSettings({ presetId: 'marathon' });
     render(<App />);
     expect(screen.getByTestId('clock')).toHaveTextContent('1:30:00');
+    // Hour-long times use a smaller size so they stay inside the ring.
+    expect(screen.getByTestId('clock')).toHaveClass('text-4xl');
+    await act(async () => useAppStore.getState().updateSettings({ presetId: 'classic' }));
+    expect(screen.getByTestId('clock')).toHaveClass('text-5xl');
   });
 });
 
@@ -249,7 +253,7 @@ describe('Labels flow', () => {
     }));
     render(<App />);
     nav('Settings');
-    fireEvent.click(screen.getByText('Labels'));
+    fireEvent.click(screen.getByText('Manage labels'));
     fireEvent.click(screen.getByText('Archive'));
     expect(screen.getByText('Archived')).toBeInTheDocument();
 
@@ -269,7 +273,7 @@ describe('Labels flow', () => {
     useAppStore.getState().addLabel('Study', '#f7a8b8');
     render(<App />);
     nav('Settings');
-    fireEvent.click(screen.getByText('Labels'));
+    fireEvent.click(screen.getByText('Manage labels'));
     const input = screen.getByLabelText('Name of Study');
     fireEvent.change(input, { target: { value: 'Reading' } });
     fireEvent.blur(input);
@@ -331,8 +335,18 @@ describe('Wardrobe and unlock moment', () => {
       name: /Glasses, locked: 10 completed sessions \(0 \/ 10\)/,
     });
     fireEvent.click(glasses);
+    // Locked: previewed on the big fox, never applied.
     expect(screen.getByRole('status')).toHaveTextContent('Glasses: 10 completed sessions (0 / 10)');
     expect(useAppStore.getState().wardrobe.equipped).toBe('none');
+    const bigFox = () => screen.getByRole('img', { name: /^Pip,/ });
+    expect(bigFox().querySelector('[data-acc="glasses"]')).not.toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: /Midnight, locked/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Midnight: Reach Adult stage');
+    expect(useAppStore.getState().wardrobe.color).toBe('red');
+    fireEvent.click(screen.getByText('Back to my look'));
+    expect(bigFox().querySelector('[data-acc="glasses"]')).toBeNull();
+    expect(screen.queryByText(/not unlocked yet/)).toBeNull();
+    fireEvent.click(glasses);
 
     fireEvent.click(screen.getByRole('radio', { name: 'Beanie' }));
     expect(useAppStore.getState().wardrobe.equipped).toBe('beanie');

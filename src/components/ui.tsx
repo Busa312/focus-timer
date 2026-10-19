@@ -90,3 +90,10 @@ export function ConfirmDialog({
     </div>
   );
 }
+
+/** Small uppercase heading at the top of a card. */
+export function SectionTitle({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="mb-1 text-xs font-extrabold tracking-wider uppercase opacity-55">{children}</h2>
+  );
+}
