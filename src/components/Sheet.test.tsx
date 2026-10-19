@@ -40,6 +40,20 @@ describe('Sheet', () => {
     expect(wrapperTransform()).toBe('translateY(0px)');
   });
 
+  it('only grabs the pointer once a tap turns into a drag', () => {
+    const { drag } = setup();
+    const capture = vi.fn();
+    drag.setPointerCapture = capture;
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Close' }), {
+      clientY: 100,
+      pointerId: 1,
+    });
+    fireEvent.pointerMove(drag, { clientY: 102, pointerId: 1 });
+    expect(capture).not.toHaveBeenCalled(); // still a tap: the handle's click must work
+    fireEvent.pointerMove(drag, { clientY: 130, pointerId: 1 });
+    expect(capture).toHaveBeenCalledWith(1);
+  });
+
   it('closes when swiped down far enough', () => {
     const { drag, onClose } = setup();
     swipe(drag, 150, 600);

@@ -1,14 +1,21 @@
 import { del, get, set as idbSet } from 'idb-keyval';
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
-import { DEFAULT_SETTINGS, DEFAULT_WARDROBE, PERSIST_KEY, PERSIST_VERSION } from '../config';
+import {
+  DEFAULT_GAME_RECORDS,
+  DEFAULT_SETTINGS,
+  DEFAULT_WARDROBE,
+  PERSIST_KEY,
+  PERSIST_VERSION,
+} from '../config';
 import * as engine from '../logic/engine';
 import type { GameEvent, Outcome } from '../logic/engine';
 import * as labels from '../logic/labels';
 import type { LabelError } from '../logic/labels';
 import * as unlocks from '../logic/unlocks';
 import type { UnlockId } from '../logic/unlocks';
-import type { Accessory, FoxColor, PersistedState, Settings } from '../types';
+import type { Accessory, FoxColor, GameId, PersistedState, Settings } from '../types';
+import { recordScore } from '../logic/games';
 import { migrate } from './migrations';
 
 const idbStorage: StateStorage = {
@@ -46,6 +53,8 @@ export interface AppStore extends PersistedState {
   equipAccessory: (a: Accessory) => void;
   setFoxColor: (c: FoxColor) => void;
   markUnlockSeen: (uid: UnlockId) => void;
+  /** Saves a finished mini game; returns true for a new high score. */
+  recordGameScore: (game: GameId, score: number) => boolean;
   resetAll: () => void;
 }
 
@@ -67,6 +76,7 @@ function pickPersisted(s: AppStore): PersistedState {
     settings: s.settings,
     labels: s.labels,
     wardrobe: s.wardrobe,
+    games: s.games,
   };
 }
 
@@ -125,6 +135,11 @@ export function createAppStore(now: () => number = () => Date.now()) {
           equipAccessory: (a) => set((s) => ({ wardrobe: unlocks.equip(s.wardrobe, a) })),
           setFoxColor: (c) => set((s) => ({ wardrobe: unlocks.setColor(s.wardrobe, c) })),
           markUnlockSeen: (uid) => set((s) => ({ wardrobe: unlocks.markSeen(s.wardrobe, uid) })),
+          recordGameScore: (game, score) => {
+            const r = recordScore(getState().games, game, score);
+            set({ games: r.records });
+            return r.isNewBest;
+          },
           resetAll: () => set({ ...engine.initialState(), event: null }),
         };
       },
@@ -141,6 +156,7 @@ export function createAppStore(now: () => number = () => Date.now()) {
             ...p,
             settings: { ...DEFAULT_SETTINGS, ...p.settings },
             wardrobe: { ...DEFAULT_WARDROBE, ...p.wardrobe },
+            games: { ...DEFAULT_GAME_RECORDS, ...p.games },
           };
         },
         onRehydrateStorage: () => () => {

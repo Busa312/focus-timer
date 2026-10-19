@@ -1,9 +1,12 @@
-import { DEFAULT_SETTINGS, DEFAULT_WARDROBE, PRESETS } from '../config';
+import { DEFAULT_GAME_RECORDS, DEFAULT_SETTINGS, DEFAULT_WARDROBE, PRESETS } from '../config';
 import type { PersistedState, PresetId, Settings } from '../types';
+
+/** Saved data as V2 wrote it (no mini game scores). */
+export type PersistedStateV2 = Omit<PersistedState, 'version' | 'games'> & { version: 2 };
 
 /** Saved data as V1 wrote it (no labels, presets or wardrobe). */
 export type PersistedStateV1 = Omit<
-  PersistedState,
+  PersistedStateV2,
   'version' | 'labels' | 'wardrobe' | 'settings'
 > & {
   version: 1;
@@ -20,7 +23,7 @@ function presetFor(s: PersistedStateV1['settings']): PresetId {
     : 'custom';
 }
 
-export function migrateV1toV2(v1: PersistedStateV1): PersistedState {
+export function migrateV1toV2(v1: PersistedStateV1): PersistedStateV2 {
   const settings = { ...DEFAULT_SETTINGS, ...v1.settings };
   return {
     ...v1,
@@ -31,9 +34,14 @@ export function migrateV1toV2(v1: PersistedStateV1): PersistedState {
   };
 }
 
+export function migrateV2toV3(v2: PersistedStateV2): PersistedState {
+  return { ...v2, version: 3, games: structuredClone(DEFAULT_GAME_RECORDS) };
+}
+
 /** Upgrade saved data from an older `version` to the current one, step by step. */
 export function migrate(persisted: unknown, fromVersion: number): PersistedState {
   let state = persisted as Record<string, unknown>;
   if (fromVersion < 2) state = migrateV1toV2(state as unknown as PersistedStateV1) as never;
+  if (fromVersion < 3) state = migrateV2toV3(state as unknown as PersistedStateV2) as never;
   return state as unknown as PersistedState;
 }

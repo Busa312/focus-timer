@@ -3,7 +3,13 @@
  * every transition takes the state and `now` and returns the next state plus
  * events for the UI (celebration, disappointment, relief, chime).
  */
-import { DEFAULT_SETTINGS, DEFAULT_WARDROBE, HISTORY_LIMIT, PERSIST_VERSION } from '../config';
+import {
+  DEFAULT_GAME_RECORDS,
+  DEFAULT_SETTINGS,
+  DEFAULT_WARDROBE,
+  HISTORY_LIMIT,
+  PERSIST_VERSION,
+} from '../config';
 import type { AbandonReason, PersistedState, SessionRecord, Stage } from '../types';
 import { applyAbandon, applyCompletion, applyDailyDecay, createCreature } from './creature';
 import { toDateKey } from './dates';
@@ -61,6 +67,7 @@ export function initialState(): PersistedState {
     settings: { ...DEFAULT_SETTINGS },
     labels: [],
     wardrobe: { ...DEFAULT_WARDROBE },
+    games: structuredClone(DEFAULT_GAME_RECORDS),
   };
 }
 

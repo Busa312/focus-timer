@@ -89,3 +89,89 @@ body {
     animation: fade-in 300ms ease-out both;
   }
 }
+
+/* Catch the treats: "+1" popups float up and fade. */
+.catch-popup {
+  transform: translate(-50%, 0);
+  animation: catch-float 700ms ease-out forwards;
+  pointer-events: none;
+}
+@keyframes catch-float {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -160%) scale(1.15);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catch-popup {
+    animation: fade-in 700ms ease-out reverse forwards;
+  }
+}
+
+/* Memory match cards: flip in 3D; with reduced motion, just swap faces. */
+.memory-card {
+  perspective: 600px;
+}
+.memory-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 320ms cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.memory-card-inner.is-up {
+  transform: rotateY(180deg);
+}
+.memory-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.memory-front {
+  transform: rotateY(180deg);
+}
+.memory-shake {
+  animation: memory-shake 360ms ease-in-out 280ms;
+}
+@keyframes memory-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .memory-card-inner,
+  .memory-card-inner.is-up {
+    transform: none;
+    transition: none;
+  }
+  .memory-front {
+    transform: none;
+    opacity: 0;
+  }
+  .memory-card-inner.is-up .memory-front {
+    opacity: 1;
+  }
+  .memory-card-inner.is-up .memory-back {
+    opacity: 0;
+  }
+  .memory-shake {
+    animation: none;
+  }
+}

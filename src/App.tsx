@@ -15,6 +15,8 @@ import { Settings } from './screens/Settings';
 import { Stats } from './screens/Stats';
 import { Wardrobe } from './screens/Wardrobe';
 import { useAppStore } from './store/useAppStore';
+import { GameOverlay } from './components/games/Games';
+import type { GameId } from './types';
 
 const BASE_TITLE = 'Focus Fox';
 
@@ -27,6 +29,7 @@ export default function App() {
     })),
   );
   const [screen, setScreen] = useState<Screen>('home');
+  const [game, setGame] = useState<GameId | null>(null);
   const keepScreenOn = useAppStore((s) => s.settings.keepScreenOn);
   const now = useTicker(active !== null);
   useVisibility(active !== null);
@@ -55,7 +58,9 @@ export default function App() {
 
   return (
     <Shell>
-      {screen === 'home' && <Home now={now} onManageLabels={() => setScreen('labels')} />}
+      {screen === 'home' && (
+        <Home now={now} onManageLabels={() => setScreen('labels')} onPlay={setGame} />
+      )}
       {screen === 'stats' && <Stats onBack={() => setScreen('home')} />}
       {screen === 'wardrobe' && <Wardrobe onBack={() => setScreen('home')} />}
       {screen === 'settings' && (
@@ -64,6 +69,10 @@ export default function App() {
       {screen === 'labels' && <Labels onBack={() => setScreen('settings')} />}
       <NavBar screen={screen} onChange={setScreen} />
       <EventLayer />
+      {/* Games close if a focus session somehow starts (they're only for off-focus time). */}
+      {game && active?.phase !== 'focus' && (
+        <GameOverlay game={game} now={now} onClose={() => setGame(null)} />
+      )}
     </Shell>
   );
 }

@@ -1,4 +1,13 @@
-import type { Accessory, FoxColor, PresetId, Settings, Stage, Wardrobe } from './types';
+import type {
+  Accessory,
+  FoxColor,
+  GameId,
+  GameRecords,
+  PresetId,
+  Settings,
+  Stage,
+  Wardrobe,
+} from './types';
 
 /** XP needed to reach each stage, in growth order. */
 export const STAGE_THRESHOLDS: ReadonlyArray<{ stage: Stage; xp: number }> = [
@@ -127,7 +136,7 @@ export const CELEBRATION_MS = 3_000;
 export const TRANSIENT_STATE_MS = 4_000;
 
 export const PERSIST_KEY = 'focus-creature';
-export const PERSIST_VERSION = 2;
+export const PERSIST_VERSION = 3;
 
 export type UnlockRule =
   | { type: 'sessions'; count: number }
@@ -167,4 +176,28 @@ export const COLOR_NAMES: Record<FoxColor, string> = {
   arctic: 'Arctic white',
   silver: 'Silver',
   midnight: 'Midnight',
+};
+
+export const DEFAULT_GAME_RECORDS: GameRecords = {
+  catch: { best: null, plays: 0 },
+  memory: { best: null, plays: 0 },
+};
+
+/** Mini games, playable whenever no focus session is running. High scores only, no rewards. */
+export const GAMES: Record<
+  GameId,
+  { name: string; blurb: string; better: 'higher' | 'lower'; unit: string }
+> = {
+  catch: {
+    name: 'Catch the treats',
+    blurb: 'Move Pip to catch falling berries.',
+    better: 'higher',
+    unit: 'points',
+  },
+  memory: {
+    name: 'Memory match',
+    blurb: 'Flip cards to find the pairs.',
+    better: 'lower',
+    unit: 'moves',
+  },
 };

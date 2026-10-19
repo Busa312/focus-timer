@@ -22,10 +22,19 @@ import { useInstallOption } from '../lib/install';
 import { ShareIcon } from '../components/ShareIcon';
 import { wakeLockSupported } from '../hooks/useWakeLock';
 import { useAppStore } from '../store/useAppStore';
-import type { CreatureState } from '../types';
+import type { CreatureState, GameId } from '../types';
+import { GamesSheet } from '../components/games/GamesSheet';
 import { creatureStateFor } from './creatureState';
 
-export function Home({ now, onManageLabels }: { now: number; onManageLabels: () => void }) {
+export function Home({
+  now,
+  onManageLabels,
+  onPlay,
+}: {
+  now: number;
+  onManageLabels: () => void;
+  onPlay: (game: GameId) => void;
+}) {
   const { creature, active, pendingBreak, cycleCount, settings, event, wardrobe } = useAppStore(
     useShallow((s) => ({
       creature: s.creature!,
@@ -40,6 +49,7 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
   const store = useAppStore.getState();
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const [showScreenTip, setShowScreenTip] = useState(false);
+  const [pickingGame, setPickingGame] = useState(false);
   const install = useInstallOption();
   const [iosTipDismissed, setIosTipDismissed] = useState(() => tipSeen('ios-install'));
 
@@ -77,7 +87,7 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex items-start justify-between px-1 pt-2">
+      <header className="relative flex items-start justify-between px-1 pt-2">
         <div>
           <h1 className="text-xl font-extrabold leading-tight">{creature.name}</h1>
           <p className="text-sm opacity-70">
@@ -89,6 +99,29 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
           <HappinessBar value={creature.happiness} />
           <ThemeButton />
         </div>
+        {/* Games: any time you're not in a focus session. Sits under the theme toggle. */}
+        {active?.phase !== 'focus' && !celebrating && (
+          <button
+            type="button"
+            aria-label="Play"
+            title="Play a mini game"
+            onClick={() => setPickingGame(true)}
+            className="absolute top-full right-[-0.25rem] z-10 mt-1 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_3px_0_rgba(59,42,36,0.1)] hover:brightness-105 focus-visible:outline-3 focus-visible:outline-sky-500 dark:bg-dusk dark:shadow-[0_3px_0_rgba(0,0,0,0.35)]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 9h4M8 7v4M15 8h.01M18 10h.01M7.5 4h9A5.5 5.5 0 0 1 22 9.5v3a3.5 3.5 0 0 1-6.2 2.2L14.5 13h-5l-1.3 1.7A3.5 3.5 0 0 1 2 12.5v-3A5.5 5.5 0 0 1 7.5 4z" />
+            </svg>
+          </button>
+        )}
       </header>
 
       <div className="flex min-h-[200px] flex-[1.4] items-center justify-center">
@@ -239,6 +272,16 @@ export function Home({ now, onManageLabels }: { now: number; onManageLabels: () 
             Got it
           </Button>
         </div>
+      )}
+
+      {pickingGame && (
+        <GamesSheet
+          onClose={() => setPickingGame(false)}
+          onPick={(game) => {
+            setPickingGame(false);
+            onPlay(game);
+          }}
+        />
       )}
 
       {confirmGiveUp && (

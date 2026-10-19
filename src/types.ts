@@ -82,7 +82,7 @@ export interface Wardrobe {
 }
 
 export interface PersistedState {
-  version: 2;
+  version: 3;
   creature: Creature | null; // null until onboarding is done
   active: ActiveSession | null;
   cycleCount: number; // completed focus sessions in the current cycle of 4
@@ -92,9 +92,22 @@ export interface PersistedState {
   settings: Settings;
   labels: Label[]; // V2
   wardrobe: Wardrobe; // V2
+  games: GameRecords; // V3: mini game high scores
 }
 
 // V2 visual types (used by the fox renderer; persisted in V2 wardrobe state).
 export type FoxColor = 'red' | 'arctic' | 'silver' | 'midnight';
 export type Accessory =
   'none' | 'glasses' | 'headphones' | 'beanie' | 'flowerCrown' | 'bowTie' | 'starCape';
+
+// V3: mini games played outside focus sessions.
+export type GameId = 'catch' | 'memory';
+
+export interface GameRecord {
+  /** Best score so far, or null before the first finished game. */
+  best: number | null;
+  /** Finished games. */
+  plays: number;
+}
+
+export type GameRecords = Record<GameId, GameRecord>;

@@ -53,7 +53,7 @@ describe('useAppStore persistence', () => {
     await flushWrites();
 
     const saved = await get<string>(PERSIST_KEY);
-    expect(JSON.parse(saved!).version).toBe(2);
+    expect(JSON.parse(saved!).version).toBe(3);
 
     // "Reload" 2 s later: a fresh store reading the same IndexedDB.
     clock += 2_000;

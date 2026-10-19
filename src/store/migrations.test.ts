@@ -1,6 +1,6 @@
 import { set } from 'idb-keyval';
 import { PERSIST_KEY } from '../config';
-import { migrate, migrateV1toV2, type PersistedStateV1 } from './migrations';
+import { migrate, migrateV1toV2, migrateV2toV3, type PersistedStateV1 } from './migrations';
 import { createAppStore, useAppStore } from './useAppStore';
 
 const NOW = new Date(2026, 9, 19, 9, 0).getTime();
@@ -98,13 +98,34 @@ describe('migrateV1toV2', () => {
   });
 
   it('migrate() leaves current data alone', () => {
-    const current = migrateV1toV2(v1());
-    expect(migrate(current, 2)).toBe(current);
+    const current = migrate(v1(), 1);
+    expect(migrate(current, 3)).toBe(current);
+  });
+});
+
+describe('migrateV2toV3', () => {
+  it('adds empty mini game records and keeps everything else', () => {
+    const v2 = migrateV1toV2(v1());
+    const v3 = migrateV2toV3(v2);
+    expect(v3.version).toBe(3);
+    expect(v3.games).toEqual({
+      catch: { best: null, plays: 0 },
+      memory: { best: null, plays: 0 },
+    });
+    // Every V2 field is carried over unchanged.
+    expect(v3).toMatchObject({ ...v2, version: 3 });
+  });
+
+  it('upgrades V1 data all the way to V3', () => {
+    const v3 = migrate(v1(), 1);
+    expect(v3.version).toBe(3);
+    expect(v3.wardrobe.color).toBe('red');
+    expect(v3.games.catch.plays).toBe(0);
   });
 });
 
 describe('opening the app with saved V1 data', () => {
-  it('upgrades to V2 in IndexedDB with nothing lost', async () => {
+  it('upgrades to the current version in IndexedDB with nothing lost', async () => {
     // Let the app-wide store finish its own hydration write first.
     await new Promise<void>((resolve) => {
       if (useAppStore.getState().hydrated) return resolve();
@@ -119,7 +140,8 @@ describe('opening the app with saved V1 data', () => {
       const unsub = store.subscribe((s) => s.hydrated && (unsub(), resolve()));
     });
     const s = store.getState();
-    expect(s.version).toBe(2);
+    expect(s.version).toBe(3);
+    expect(s.games.memory).toEqual({ best: null, plays: 0 });
     expect(s.creature).toEqual(old.creature);
     expect(s.history).toEqual(old.history);
     expect(s.streak).toEqual(old.streak);

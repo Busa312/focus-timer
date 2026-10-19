@@ -40,14 +40,17 @@ export function Sheet({
   }, [close]);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture?.(e.pointerId);
     start.current = { y: e.clientY, t: performance.now(), moved: false };
     setDragging(true);
   };
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     if (!start.current) return;
     const dy = Math.max(0, e.clientY - start.current.y);
-    if (dy > 4) start.current.moved = true;
+    if (dy > 4 && !start.current.moved) {
+      start.current.moved = true;
+      // Capture only once it's a drag, so a plain tap still clicks the handle button.
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    }
     setDragY(dy);
   };
   const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {

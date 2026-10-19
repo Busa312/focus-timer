@@ -15,11 +15,14 @@ async function hydrated() {
   });
 }
 
-const advance = async (ms: number) => {
-  // Step in ticker-sized chunks so intervals and effects interleave like real time.
-  for (let t = 0; t < ms; t += 250) {
+/**
+ * Advance fake time. Small steps let intervals and effects interleave like real
+ * time; long stretches can use bigger steps (the 250 ms ticker still fires inside).
+ */
+const advance = async (ms: number, stepMs = 250) => {
+  for (let t = 0; t < ms; t += stepMs) {
     await act(async () => {
-      vi.advanceTimersByTime(250);
+      vi.advanceTimersByTime(Math.min(stepMs, ms - t));
     });
   }
 };
@@ -98,7 +101,7 @@ describe('App', () => {
     useAppStore.getState().onboard('Pip');
     render(<App />);
     fireEvent.click(screen.getByText('Start Focus'));
-    await advance(25 * 60_000);
+    await advance(25 * 60_000, 1_000);
     expect(screen.getByText('Session complete!')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /egg fox/ })).toBeInTheDocument();
     expect(screen.queryByText('Start break')).not.toBeInTheDocument();
@@ -111,7 +114,7 @@ describe('App', () => {
     fireEvent.click(screen.getByText('Continue'));
     expect(useAppStore.getState().active?.phase).toBe('shortBreak');
     expect(screen.getByRole('img', { name: /baby fox/ })).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it('pause freezes the clock and resume continues', async () => {
     useAppStore.getState().onboard('Pip');
