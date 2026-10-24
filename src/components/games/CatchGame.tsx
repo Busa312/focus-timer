@@ -54,8 +54,9 @@ const formatSeconds = (ms: number) => {
 };
 
 export function CatchGame({ best, onFinish }: GameProps) {
-  const { xp, color, accessory } = useAppStore(
+  const { name, xp, color, accessory } = useAppStore(
     useShallow((s) => ({
+      name: s.creature?.name ?? 'your fox',
       xp: s.creature?.xp ?? 0,
       color: s.wardrobe.color,
       accessory: s.wardrobe.equipped,
@@ -221,7 +222,7 @@ export function CatchGame({ best, onFinish }: GameProps) {
             </span>
           ))}
 
-        {/* Pip: the head lines up with the catch line. */}
+        {/* The fox: its head lines up with the catch line. */}
         <div
           className="pointer-events-none absolute aspect-square"
           style={{
@@ -250,7 +251,7 @@ export function CatchGame({ best, onFinish }: GameProps) {
               <div className="animate-pop flex max-w-xs flex-col items-center gap-3 text-center">
                 <p className="text-2xl font-extrabold">Catch the treats</p>
                 <p className="text-sm opacity-80">
-                  Drag anywhere to move Pip. You have 60 seconds.
+                  Drag anywhere to move {name}. You have 60 seconds.
                 </p>
                 <ul className="flex flex-col gap-1.5 text-sm font-bold">
                   <li className="flex items-center gap-2">

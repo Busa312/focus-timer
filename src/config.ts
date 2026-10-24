@@ -186,17 +186,23 @@ export const DEFAULT_GAME_RECORDS: GameRecords = {
 /** Mini games, playable whenever no focus session is running. High scores only, no rewards. */
 export const GAMES: Record<
   GameId,
-  { name: string; blurb: string; better: 'higher' | 'lower'; unit: string }
+  {
+    name: string;
+    /** Short description; gets the fox's name. */
+    blurb: (foxName: string) => string;
+    better: 'higher' | 'lower';
+    unit: string;
+  }
 > = {
   catch: {
     name: 'Catch the treats',
-    blurb: 'Move Pip to catch falling berries.',
+    blurb: (foxName) => `Move ${foxName} to catch falling berries.`,
     better: 'higher',
     unit: 'points',
   },
   memory: {
     name: 'Memory match',
-    blurb: 'Flip cards to find the pairs.',
+    blurb: () => 'Flip cards to find the pairs.',
     better: 'lower',
     unit: 'moves',
   },

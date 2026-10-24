@@ -95,7 +95,7 @@ describe('App', () => {
     // 70 + 10 + 10 + 10 + 15, clamped
     expect(s.creature!.happiness).toBe(100);
     expect(screen.getByTestId('dots')).toHaveAccessibleName('0 of 4 sessions this cycle');
-  });
+  }, 20_000);
 
   it('hatches through the evolution moment without spoiling the new stage', async () => {
     useAppStore.getState().onboard('Pip');

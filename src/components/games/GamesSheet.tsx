@@ -15,8 +15,9 @@ export function GamesSheet({
   onClose: () => void;
 }) {
   const records = useAppStore((s) => s.games);
+  const name = useAppStore((s) => s.creature?.name ?? 'your fox');
   return (
-    <Sheet title="Play with Pip" onClose={onClose}>
+    <Sheet title={`Play with ${name}`} onClose={onClose}>
       <ul className="flex flex-col gap-2">
         {ORDER.map((id) => (
           <li key={id}>
@@ -29,7 +30,7 @@ export function GamesSheet({
               <GameIcon game={id} />
               <span className="min-w-0 flex-1">
                 <span className="block leading-tight font-extrabold">{GAMES[id].name}</span>
-                <span className="block text-xs opacity-65">{GAMES[id].blurb}</span>
+                <span className="block text-xs opacity-65">{GAMES[id].blurb(name)}</span>
                 <span className="mt-0.5 block text-xs font-bold text-fox">
                   {bestText(id, records[id].best)}
                 </span>

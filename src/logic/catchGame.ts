@@ -1,6 +1,6 @@
 /**
  * Catch the treats: pure game logic. The play area is 1 x 1 (x across, y down);
- * Pip walks along the bottom and catches what falls into the catch line.
+ * The fox walks along the bottom and catches what falls into the catch line.
  */
 
 export type ItemKind = 'berry' | 'golden' | 'pinecone';
@@ -36,7 +36,7 @@ export interface CatchState {
 export const CATCH = {
   roundMs: 60_000,
   points: { berry: 1, golden: 5, pinecone: -3 } as Record<ItemKind, number>,
-  /** Where Pip's paws catch things, as a fraction of the play area's height. */
+  /** Where the fox's paws catch things, as a fraction of the play area's height. */
   catchY: 0.84,
   foxHalfWidth: 0.1,
   itemRadius: 0.035,

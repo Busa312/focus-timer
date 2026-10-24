@@ -114,3 +114,19 @@ describe('GameScreen scores', () => {
     expect(useAppStore.getState().games.catch).toEqual({ best: 25, plays: 2 });
   });
 });
+
+describe('Game texts use the fox’s own name', () => {
+  it('shows the chosen name, not a default', async () => {
+    useAppStore.setState({ ...initialState(), event: null });
+    useAppStore.getState().onboard('Biscuit');
+    render(<App />);
+    fireEvent.click(playButton()!);
+    expect(screen.getByRole('dialog', { name: 'Play with Biscuit' })).toBeInTheDocument();
+    expect(screen.getByText('Move Biscuit to catch falling berries.')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Catch the treats'));
+    expect(
+      await screen.findByText('Drag anywhere to move Biscuit. You have 60 seconds.'),
+    ).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/\bPip\b/);
+  });
+});
