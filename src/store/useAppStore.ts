@@ -32,6 +32,9 @@ export interface AppStore extends PersistedState {
 
   onboard: (name: string) => void;
   startFocus: () => void;
+  /** Whether Start Focus should first ask to reset a stale cycle. */
+  cycleIsStale: () => boolean;
+  resetCycle: () => void;
   pause: () => void;
   resume: () => void;
   giveUp: () => void;
@@ -115,6 +118,8 @@ export function createAppStore(now: () => number = () => Date.now()) {
             apply((s) => engine.startFocus(s, now(), newId()));
             set({ event: null });
           },
+          cycleIsStale: () => engine.cycleIsStale(pickPersisted(getState()), now()),
+          resetCycle: () => apply((s) => engine.resetCycle(s)),
           pause: () => apply((s) => engine.pause(s, now())),
           resume: () => apply((s) => engine.resume(s, now())),
           giveUp: () => run((s) => engine.abandonFocus(s, now(), 'gaveUp')),

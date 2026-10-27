@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent, useRef } from 'react';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -43,6 +43,8 @@ interface ConfirmProps {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Tap outside or Escape; defaults to `onCancel`. */
+  onDismiss?: () => void;
 }
 
 /** Modal confirm with Cancel as the default (focused) button. */
@@ -53,19 +55,23 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   onConfirm,
   onCancel,
+  onDismiss = onCancel,
 }: ConfirmProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  // An effect event, so parent re-renders (4x/s during focus) don't re-run the
+  // effect and pull focus back to Cancel.
+  const onEscape = useEffectEvent(() => onDismiss());
   useEffect(() => {
     cancelRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onEscape();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onCancel]);
+  }, []);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center"
-      onClick={onCancel}
+      onClick={onDismiss}
     >
       <div
         role="alertdialog"

@@ -4,6 +4,7 @@
  * events for the UI (celebration, disappointment, relief, chime).
  */
 import {
+  CYCLE_STALE_MS,
   DEFAULT_GAME_RECORDS,
   DEFAULT_SETTINGS,
   DEFAULT_WARDROBE,
@@ -104,6 +105,20 @@ export function startFocus(state: PersistedState, now: number, id: string): Pers
     active: labelId ? { ...session, labelId } : session,
     pendingBreak: null,
   };
+}
+
+/**
+ * True when Start Focus should ask to reset the cycle: idle, mid-cycle, and the
+ * last focus session (completed or abandoned) ended over an hour ago.
+ */
+export function cycleIsStale(state: PersistedState, now: number): boolean {
+  if (state.active || state.pendingBreak || state.cycleCount === 0) return false;
+  const last = state.history.at(-1);
+  return last !== undefined && now - last.endedAt > CYCLE_STALE_MS;
+}
+
+export function resetCycle(state: PersistedState): PersistedState {
+  return state.cycleCount === 0 ? state : { ...state, cycleCount: 0 };
 }
 
 export function startBreak(state: PersistedState, now: number, id: string): PersistedState {

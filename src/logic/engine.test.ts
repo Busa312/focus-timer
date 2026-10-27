@@ -231,6 +231,62 @@ describe('engine: daily checks', () => {
   });
 });
 
+describe('engine: stale cycle', () => {
+  const HOUR = 60 * MIN;
+
+  /** Three completed sessions; the last one ends at T0 + 25 min + 2 * 40 min. */
+  function threeDone() {
+    let s = ready();
+    for (let i = 0; i < 3; i++) s = engine.skipBreak(completeOne(s, T0 + i * 40 * MIN).state);
+    return { state: s, lastEnd: T0 + 80 * MIN + 25 * MIN };
+  }
+
+  it('asks only after more than an hour since the last focus', () => {
+    const { state, lastEnd } = threeDone();
+    expect(state.cycleCount).toBe(3);
+    expect(engine.cycleIsStale(state, lastEnd + 59 * MIN)).toBe(false);
+    expect(engine.cycleIsStale(state, lastEnd + HOUR)).toBe(false);
+    expect(engine.cycleIsStale(state, lastEnd + HOUR + 1)).toBe(true);
+    expect(engine.cycleIsStale(state, lastEnd + 24 * HOUR)).toBe(true);
+  });
+
+  it('never asks at 0 of N, with empty history, or when the clock went backwards', () => {
+    expect(engine.cycleIsStale(ready(), T0 + 5 * HOUR)).toBe(false);
+    const { state, lastEnd } = threeDone();
+    expect(engine.cycleIsStale({ ...state, history: [] }, lastEnd + 2 * HOUR)).toBe(false);
+    expect(engine.cycleIsStale(state, lastEnd - 2 * HOUR)).toBe(false);
+  });
+
+  it('never asks during a session or with a break ready', () => {
+    const { state, lastEnd } = threeDone();
+    const later = lastEnd + 2 * HOUR;
+    expect(engine.cycleIsStale(engine.startFocus(state, later, 'x'), later)).toBe(false);
+    expect(engine.cycleIsStale({ ...state, pendingBreak: 'shortBreak' }, later)).toBe(false);
+  });
+
+  it('an abandoned session counts as recent activity', () => {
+    const { state, lastEnd } = threeDone();
+    const back = lastEnd + 10 * HOUR;
+    const started = engine.startFocus(state, back, 'kept');
+    const gaveUp = engine.abandonFocus(started, back + 5 * MIN, 'gaveUp').state;
+    expect(gaveUp.cycleCount).toBe(3);
+    expect(engine.cycleIsStale(gaveUp, back + 6 * MIN)).toBe(false);
+    expect(engine.cycleIsStale(gaveUp, back + 5 * MIN + HOUR + 1)).toBe(true);
+  });
+
+  it('resetCycle starts over so the next session earns a short break', () => {
+    const { state, lastEnd } = threeDone();
+    const reset = engine.resetCycle(state);
+    expect(reset.cycleCount).toBe(0);
+    expect(engine.resetCycle(reset)).toBe(reset);
+    const next = completeOne(reset, lastEnd + 2 * HOUR).state;
+    expect(next.pendingBreak).toBe('shortBreak');
+    expect(next.cycleCount).toBe(1);
+    // Kept instead: the 4th session earns the long break.
+    expect(completeOne(state, lastEnd + 2 * HOUR).state.pendingBreak).toBe('longBreak');
+  });
+});
+
 describe('engine: history', () => {
   it('keeps only the last 500 records', () => {
     let s = ready();

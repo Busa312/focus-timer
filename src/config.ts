@@ -129,6 +129,9 @@ export const TICK_MS = 250;
 
 export const HISTORY_LIMIT = 500;
 
+/** Start Focus asks to reset the cycle when the last focus ended longer ago than this. */
+export const CYCLE_STALE_MS = 60 * 60_000;
+
 /** Celebration overlay after a completed session, before the break starts. */
 export const CELEBRATION_MS = 3_000;
 

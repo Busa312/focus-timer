@@ -148,6 +148,114 @@ describe('App', () => {
     expect(s.creature!.xp).toBe(0);
   });
 
+  it('give up dialog keeps focus where the user moved it while the timer ticks', async () => {
+    useAppStore.getState().onboard('Pip');
+    render(<App />);
+    fireEvent.click(screen.getByText('Start Focus'));
+    fireEvent.click(screen.getByText('Give up'));
+    const confirm = screen.getAllByText('Give up').at(-1)!;
+    act(() => confirm.focus());
+    await advance(1_000);
+    expect(confirm).toHaveFocus();
+  });
+
+  describe('stale cycle', () => {
+    const HOUR = 3_600_000;
+
+    /** 3 of 4 done; the last focus ended `agoMs` before now. */
+    function threeDone(agoMs: number) {
+      useAppStore.getState().onboard('Pip');
+      const endedAt = Date.now() - agoMs;
+      useAppStore.setState({
+        cycleCount: 3,
+        history: [
+          {
+            id: 'old',
+            startedAt: endedAt - 25 * 60_000,
+            endedAt,
+            focusMinutes: 25,
+            result: 'completed',
+          },
+        ],
+      });
+    }
+
+    it('asks before starting; Start fresh resets the cycle to 0', () => {
+      threeDone(14 * HOUR);
+      render(<App />);
+      expect(screen.getByTestId('dots')).toHaveTextContent('3 of 4');
+      fireEvent.click(screen.getByText('Start Focus'));
+      const dialog = screen.getByRole('alertdialog');
+      expect(dialog).toHaveTextContent('Start a fresh cycle?');
+      expect(dialog).toHaveTextContent("You're at 3 of 4 toward a long break.");
+      expect(screen.getByText('Start fresh')).toHaveFocus();
+      expect(useAppStore.getState().active).toBeNull();
+
+      fireEvent.click(screen.getByText('Start fresh'));
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(useAppStore.getState().active?.phase).toBe('focus');
+      expect(useAppStore.getState().cycleCount).toBe(0);
+      expect(screen.getByTestId('dots')).toHaveTextContent('0 of 4');
+    });
+
+    it('Keep starts at 3 of 4 and the session earns the long break', async () => {
+      threeDone(2 * HOUR);
+      render(<App />);
+      fireEvent.click(screen.getByText('Start Focus'));
+      fireEvent.click(screen.getByText('Keep 3 of 4'));
+      expect(useAppStore.getState().active?.phase).toBe('focus');
+      expect(screen.getByTestId('dots')).toHaveTextContent('3 of 4');
+      await advance(25 * 60_000 + 1_000, 1_000);
+      expect(screen.getByText('Long break earned. Treat time!')).toBeInTheDocument();
+    });
+
+    it('Escape or tapping outside closes it without starting', () => {
+      threeDone(2 * HOUR);
+      render(<App />);
+      fireEvent.click(screen.getByText('Start Focus'));
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+
+      fireEvent.click(screen.getByText('Start Focus'));
+      fireEvent.click(screen.getByRole('alertdialog').parentElement!);
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(useAppStore.getState()).toMatchObject({ active: null, cycleCount: 3 });
+      expect(screen.getByText('Start Focus')).toBeInTheDocument();
+    });
+
+    it('does not ask within the hour', () => {
+      threeDone(HOUR);
+      render(<App />);
+      fireEvent.click(screen.getByText('Start Focus'));
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(useAppStore.getState().active?.phase).toBe('focus');
+    });
+
+    it('does not ask again after a kept session is given up', () => {
+      threeDone(2 * HOUR);
+      render(<App />);
+      fireEvent.click(screen.getByText('Start Focus'));
+      fireEvent.click(screen.getByText('Keep 3 of 4'));
+      fireEvent.click(screen.getByText('Give up'));
+      fireEvent.click(screen.getAllByText('Give up').at(-1)!);
+      // Braces: the persisted store's actions return a Promise, which would turn
+      // this into an un-awaited async act and stall every later render.
+      act(() => {
+        useAppStore.getState().dismissEvent();
+      });
+      fireEvent.click(screen.getByText('Start Focus'));
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(useAppStore.getState().active?.phase).toBe('focus');
+    });
+
+    it('caps the dots when Long break after is lowered below the count', () => {
+      threeDone(HOUR / 2);
+      useAppStore.getState().updateSettings({ sessionsPerLongBreak: 2 });
+      render(<App />);
+      expect(screen.getByTestId('dots')).toHaveTextContent('2 of 2');
+    });
+  });
+
   it('skip break returns to idle', async () => {
     useAppStore.getState().onboard('Pip');
     useAppStore

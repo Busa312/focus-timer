@@ -48,6 +48,7 @@ export function Home({
   );
   const store = useAppStore.getState();
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
+  const [askResetCycle, setAskResetCycle] = useState(false);
   const [showScreenTip, setShowScreenTip] = useState(false);
   const [pickingGame, setPickingGame] = useState(false);
   const install = useInstallOption();
@@ -81,9 +82,16 @@ export function Home({
   // Session dots: completed focus sessions in the current cycle.
   const total = settings.sessionsPerLongBreak;
   const longBreakNow = active?.phase === 'longBreak' || pendingBreak === 'longBreak';
-  const filled = longBreakNow ? total : cycleCount;
+  // Capped: lowering "Long break after" can leave cycleCount above the total.
+  const filled = longBreakNow ? total : Math.min(cycleCount, total);
 
   const level = levelForXp(creature.xp);
+
+  const beginFocus = () => {
+    unlockAudio();
+    store.startFocus();
+    if (!wakeLockSupported() && !tipSeen('wakelock')) setShowScreenTip(true);
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -192,11 +200,7 @@ export function Home({
           {!active && !pendingBreak && !celebrating && (
             <Button
               className="min-w-48 text-lg"
-              onClick={() => {
-                unlockAudio();
-                store.startFocus();
-                if (!wakeLockSupported() && !tipSeen('wakelock')) setShowScreenTip(true);
-              }}
+              onClick={() => (store.cycleIsStale() ? setAskResetCycle(true) : beginFocus())}
             >
               Start Focus
             </Button>
@@ -281,6 +285,25 @@ export function Home({
             setPickingGame(false);
             onPlay(game);
           }}
+        />
+      )}
+
+      {askResetCycle && (
+        <ConfirmDialog
+          title="Start a fresh cycle?"
+          body={`It's been over an hour since your last focus. You're at ${filled} of ${total} toward a long break.`}
+          cancelLabel="Start fresh"
+          confirmLabel={`Keep ${filled} of ${total}`}
+          onCancel={() => {
+            setAskResetCycle(false);
+            store.resetCycle();
+            beginFocus();
+          }}
+          onConfirm={() => {
+            setAskResetCycle(false);
+            beginFocus();
+          }}
+          onDismiss={() => setAskResetCycle(false)}
         />
       )}
 

@@ -101,6 +101,20 @@ Every focus session ends either completed (rewards) or abandoned (penalty); brea
 - Abandoned sessions do not advance `cycleCount`.
 - Only one active session can exist at a time.
 
+### Stale cycle check
+
+`cycleCount` survives restarts, so 3 sessions yesterday would make today's first session earn a long break. To avoid this, Start Focus asks first when the cycle looks stale.
+
+- **When it asks:** the user taps Start Focus while idle (no active session, no break ready), `cycleCount > 0`, and the most recent focus session in `history` (completed or abandoned) ended more than `CYCLE_STALE_MS` ago (60 min, in `config.ts`; exactly 60 min does not ask). It never asks when `cycleCount` is 0, when history is empty, or when the last session's end is in the future (clock changed).
+- **The question:** "Start a fresh cycle?" with "It's been over an hour since your last focus. You're at N of M toward a long break." `N` is shown no higher than `M`.
+- **"Start fresh"** (primary, focused by default): sets `cycleCount` to 0, then starts the focus session.
+- **"Keep N of M":** starts the focus session with `cycleCount` unchanged.
+- **Tap outside or Escape:** closes the dialog; the counter is unchanged and nothing starts.
+- Either answer starts a session, so it counts as recent activity: if that session is abandoned, the next Start Focus does not ask again.
+- The check is pure (`cycleIsStale(state, now)` and `resetCycle(state)` in `engine.ts`); Home decides whether to show the dialog.
+
+**Related fix:** if `sessionsPerLongBreak` is lowered below the current `cycleCount`, the session dots show "N of M" with N capped at M (the next completed session already earns the long break).
+
 ## Creature system
 
 The creature grows from XP (never lost) and shows feelings from happiness (goes up and down). Early stages come fast so day one feels rewarding.
@@ -444,6 +458,13 @@ V1 is done when every box below is checked on a real Android phone, a real iPhon
 - [ ] Each unlock appears once, at its exact threshold, with the celebration
 - [ ] Every accessory and color looks right on all 5 stages
 - [ ] The share card opens the share sheet on phones and downloads a PNG on desktop
+
+**Stale cycle checks:**
+
+- [ ] With 3 of 4 done and the last focus over an hour ago, Start Focus asks "Start a fresh cycle?"
+- [ ] "Start fresh" starts the session at 0 of 4; "Keep 3 of 4" starts it at 3 of 4
+- [ ] Tapping outside or Escape closes the dialog without starting a session
+- [ ] No question within the hour, at 0 of 4, or right after a kept session was abandoned
 
 ## Future versions
 
